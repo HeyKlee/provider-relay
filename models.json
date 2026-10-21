@@ -1,0 +1,1051 @@
+{
+  "Relay": {
+    "steps": [
+      {
+        "provider": "openrouter",
+        "models": [
+          "openrouter/free",
+          "apodex/apodex-1.1-mini:free",
+          "dots-studio/dots-3-note-preview:free",
+          "liquid/lfm-2.5-2.6b:free",
+          "nvidia/nemotron-3.5-lightning:free",
+          "cohere/north-mini-code:free",
+          "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "xkiro",
+        "models": [
+          "qwen/qwen3.8-max:free",
+          "qwen/qwen3-coder-plus:free",
+          "qwen/qwen3.7-flash:free"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "dahl",
+        "models": [],
+        "paid": false,
+        "excluded_models": [
+          {
+            "model": "deepseek-ai/DeepSeek-V4-Flash-0731",
+            "reason": "Disabled in automatic routing; select explicitly after verifying your provider account."
+          },
+          {
+            "model": "zai-org/GLM-5.3-Flash",
+            "reason": "Disabled in automatic routing; select explicitly after verifying your provider account."
+          },
+          {
+            "model": "MiniMaxAI/MiniMax-M2.7",
+            "reason": "Disabled in automatic routing; select explicitly after verifying your provider account."
+          }
+        ]
+      },
+      {
+        "provider": "codiv",
+        "models": [
+          "diffusiongemma-26b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "freellmapi",
+        "models": [
+          "auto:smart",
+          "fusion",
+          "nemotron-3.5-lightning",
+          "dots3-note-preview"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "omniroute",
+        "models": [
+          "auto"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "9router",
+        "models": [
+          "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+          "nvidia/deepseek-ai/deepseek-v4.1-flash",
+          "nvidia/meta/llama-3.2-11b-vision-instruct",
+          "nvidia/meta/muse-glimmer-30b",
+          "nvidia/nvidia/nemotron-3-super-120b-a12b",
+          "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+          "nvidia/openai/gpt-oss-20b",
+          "nvidia/z-ai/glm-5.3",
+          "nvidia/z-ai/glm-5.3-flash"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "kilo",
+        "models": [
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "nim",
+        "models": [
+          "deepseek-ai/deepseek-v4.1-flash",
+          "meta/llama-3.2-11b-vision-instruct",
+          "meta/muse-glimmer-30b",
+          "nvidia/nemotron-3-super-120b-a12b",
+          "nvidia/nemotron-3-ultra-550b-a55b",
+          "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "openai/gpt-oss-20b",
+          "z-ai/glm-5.3",
+          "z-ai/glm-5.3-flash"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "ovh",
+        "models": [
+          "gpt-oss-20b",
+          "Qwen3.8-27B"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "groq",
+        "models": [
+          "openai/gpt-oss-120b",
+          "openai/gpt-oss-20b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "blockrun",
+        "models": [
+          "nvidia/nemotron-3.5-lightning",
+          "nvidia/nemotron-3-ultra-550b",
+          "cohere/north-mini-code",
+          "poolside/laguna-xs-2.1",
+          "nvidia/muse-glimmer-30b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Typhoon",
+        "models": [
+          "typhoon-v2.5-30b-a3b-instruct"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Ollama",
+        "models": [
+          "gpt-oss:120b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Agnes",
+        "models": [
+          "agnes-3.0-flash",
+          "agnes-2.5-flash"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Onomeo",
+        "models": [
+          "ministral-14b-latest",
+          "gpt-oss-20b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "chatgpt",
+        "models": [
+          "gpt-5.6-sol",
+          "gpt-5.6-terra",
+          "gpt-5.6-luna",
+          "gpt-6-astra"
+        ],
+        "paid": true
+      },
+      {
+        "provider": "openrouter",
+        "models": [
+          "deepseek/deepseek-v4-flash"
+        ],
+        "paid": true
+      }
+    ],
+    "context_length": 131072,
+    "label": "Relay | Task routing, free first",
+    "routing_policy": "task_within_cost_tier"
+  },
+  "OpenRouter:openrouter/free": {
+    "provider": "openrouter",
+    "model": "openrouter/free",
+    "label": "Free Models Router | OpenRouter (model fallback)",
+    "context_length": 256000,
+    "steps": [
+      {
+        "provider": "openrouter",
+        "model": "openrouter/free",
+        "paid": false
+      },
+      {
+        "provider": "openrouter",
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "paid": false
+      },
+      {
+        "provider": "openrouter",
+        "model": "cohere/north-mini-code:free",
+        "paid": false
+      },
+      {
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free",
+        "paid": false
+      }
+    ]
+  },
+  "xKiro:qwen/qwen3.8-max:free": {
+    "provider": "xkiro",
+    "model": "qwen/qwen3.8-max:free",
+    "context_length": 131072,
+    "label": "Qwen3.8 Max | xKiro Free"
+  },
+  "xKiro:qwen/qwen3-coder-plus:free": {
+    "provider": "xkiro",
+    "model": "qwen/qwen3-coder-plus:free",
+    "context_length": 131072,
+    "label": "Qwen3 Coder Plus | xKiro Free"
+  },
+  "xKiro:qwen/qwen3.7-flash:free": {
+    "provider": "xkiro",
+    "model": "qwen/qwen3.7-flash:free",
+    "context_length": 131072,
+    "label": "Qwen3.7 Flash | xKiro Free"
+  },
+  "Codiv:diffusiongemma-26b": {
+    "provider": "codiv",
+    "model": "diffusiongemma-26b",
+    "context_length": 65536,
+    "label": "DiffusionGemma 26B | Codiv (64K workflow, 32K blocks)",
+    "native_context_length": 32768,
+    "context_mode": "chunked"
+  },
+  "OpenAI:gpt-5.6-luna": {
+    "provider": "chatgpt",
+    "model": "gpt-5.6-luna",
+    "context_length": 128000,
+    "label": "GPT 5.6 Luna | ChatGPT (paid)",
+    "paid": true
+  },
+  "OpenAI:gpt-5.6-terra": {
+    "provider": "chatgpt",
+    "model": "gpt-5.6-terra",
+    "context_length": 128000,
+    "label": "GPT 5.6 Terra | ChatGPT (paid)",
+    "paid": true
+  },
+  "OpenAI:gpt-5.6-sol": {
+    "provider": "chatgpt",
+    "model": "gpt-5.6-sol",
+    "context_length": 128000,
+    "label": "GPT 5.6 Sol | ChatGPT (paid)",
+    "paid": true
+  },
+  "OpenAI:gpt-6-astra": {
+    "provider": "chatgpt",
+    "model": "gpt-6-astra",
+    "context_length": 128000,
+    "label": "GPT 6 Astra | ChatGPT (paid)",
+    "paid": true
+  },
+  "FreeLLMAPI:auto": {
+    "provider": "freellmapi",
+    "model": "auto",
+    "context_length": 128000,
+    "label": "Free Router | FreeLLMAPI"
+  },
+  "9Router:nvidia/nvidia/nemotron-3-ultra-550b-a55b": {
+    "provider": "9router",
+    "model": "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+    "context_length": 262144,
+    "label": "Nemotron 3 Ultra | 9Router",
+    "paid": false
+  },
+  "OpenRouter:apodex/apodex-1.1-mini:free": {
+    "provider": "openrouter",
+    "model": "apodex/apodex-1.1-mini:free",
+    "label": "Apodex: Apodex 1.1 Mini (free) \u00b7 OpenRouter",
+    "context_length": 262144
+  },
+  "OpenRouter:dots-studio/dots-3-note-preview:free": {
+    "provider": "openrouter",
+    "model": "dots-studio/dots-3-note-preview:free",
+    "label": "Dots Studio: Dots3-Note Preview (free) \u00b7 OpenRouter",
+    "context_length": 512000
+  },
+  "OpenRouter:liquid/lfm-2.5-2.6b:free": {
+    "provider": "openrouter",
+    "model": "liquid/lfm-2.5-2.6b:free",
+    "label": "LiquidAI: LFM2.5-2.6B (free) \u00b7 OpenRouter",
+    "context_length": 65536
+  },
+  "OpenRouter:nvidia/nemotron-3.5-lightning:free": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "label": "NVIDIA: Nemotron 3.5 Lightning (free) \u00b7 OpenRouter",
+    "context_length": 1000000
+  },
+  "OpenRouter:cohere/north-mini-code:free": {
+    "provider": "openrouter",
+    "model": "cohere/north-mini-code:free",
+    "label": "Cohere: North Mini Code (free) \u00b7 OpenRouter",
+    "context_length": 256000
+  },
+  "OpenRouter:nvidia/nemotron-3-ultra-550b-a55b:free": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "label": "NVIDIA: Nemotron 3 Ultra (free) \u00b7 OpenRouter",
+    "context_length": 1000000
+  },
+  "OpenRouter:nvidia/nemotron-3-super-120b-a12b:free": {
+    "provider": "openrouter",
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "label": "NVIDIA: Nemotron 3 Super (free) \u00b7 OpenRouter",
+    "context_length": 262144
+  },
+  "NVIDIA:deepseek-ai/deepseek-v4.1-flash": {
+    "provider": "nim",
+    "model": "deepseek-ai/deepseek-v4.1-flash",
+    "label": "DeepSeek V4.1 Flash | NVIDIA",
+    "context_length": 1048576
+  },
+  "NVIDIA:meta/llama-3.2-11b-vision-instruct": {
+    "provider": "nim",
+    "model": "meta/llama-3.2-11b-vision-instruct",
+    "label": "Llama 3.2 11B Vision | NVIDIA",
+    "supports_vision": true,
+    "task_categories": [
+      "vision"
+    ]
+  },
+  "NVIDIA:meta/muse-glimmer-30b": {
+    "provider": "nim",
+    "model": "meta/muse-glimmer-30b",
+    "label": "Muse Glimmer 30B | NVIDIA",
+    "context_length": 131072
+  },
+  "NVIDIA:nvidia/nemotron-3-super-120b-a12b": {
+    "provider": "nim",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "label": "Nemotron 3 Super | NVIDIA",
+    "context_length": 262144
+  },
+  "NVIDIA:nvidia/nemotron-3-ultra-550b-a55b": {
+    "provider": "nim",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "label": "Nemotron 3 Ultra | NVIDIA",
+    "context_length": 262144
+  },
+  "NVIDIA:nvidia/nemotron-3.5-lightning-30b-a3b": {
+    "provider": "nim",
+    "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "label": "Nemotron 3.5 Lightning | NVIDIA"
+  },
+  "NVIDIA:openai/gpt-oss-20b": {
+    "provider": "nim",
+    "model": "openai/gpt-oss-20b",
+    "label": "GPT-OSS 20B | NVIDIA",
+    "context_length": 131072
+  },
+  "NVIDIA:z-ai/glm-5.3": {
+    "provider": "nim",
+    "model": "z-ai/glm-5.3",
+    "label": "GLM 5.3 | NVIDIA",
+    "context_length": 1048576
+  },
+  "NVIDIA:z-ai/glm-5.3-flash": {
+    "provider": "nim",
+    "model": "z-ai/glm-5.3-flash",
+    "label": "GLM 5.3 Flash | NVIDIA",
+    "context_length": 1048576
+  },
+  "Kilo:kilo-auto/free": {
+    "provider": "kilo",
+    "model": "kilo-auto/free",
+    "label": "Auto Free | Kilo",
+    "context_length": 256000
+  },
+  "Kilo:nvidia/nemotron-3-ultra-550b-a55b:free": {
+    "provider": "kilo",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "label": "NVIDIA: Nemotron 3 Ultra (free) \u00b7 Kilo",
+    "context_length": 1000000
+  },
+  "Kilo:dots-studio/dots-3-note-preview:free": {
+    "provider": "kilo",
+    "model": "dots-studio/dots-3-note-preview:free",
+    "label": "Dots Studio: Dots3-Note Preview (free) \u00b7 Kilo",
+    "context_length": 512000
+  },
+  "Kilo:inclusionai/ling-3.1-flash": {
+    "provider": "kilo",
+    "model": "inclusionai/ling-3.1-flash",
+    "label": "inclusionAI: Ling 3.1 Flash (new) \u00b7 Kilo",
+    "context_length": 262144
+  },
+  "Kilo:poolside/laguna-s-2.1:free": {
+    "provider": "kilo",
+    "model": "poolside/laguna-s-2.1:free",
+    "label": "Poolside: Laguna S 2.1 (free) \u00b7 Kilo",
+    "context_length": 262144
+  },
+  "Kilo:liquid/lfm-2.5-2.6b:free": {
+    "provider": "kilo",
+    "model": "liquid/lfm-2.5-2.6b:free",
+    "label": "LiquidAI: LFM2.5-2.6B (free) \u00b7 Kilo",
+    "context_length": 65536
+  },
+  "Kilo:nvidia/nemotron-3.5-lightning:free": {
+    "provider": "kilo",
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "label": "NVIDIA: Nemotron 3.5 Lightning (free) \u00b7 Kilo",
+    "context_length": 1000000
+  },
+  "Kilo:cohere/north-mini-code:free": {
+    "provider": "kilo",
+    "model": "cohere/north-mini-code:free",
+    "label": "Cohere: North Mini Code (free) \u00b7 Kilo",
+    "context_length": 256000
+  },
+  "Kilo:nvidia/nemotron-3-super-120b-a12b:free": {
+    "provider": "kilo",
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "label": "NVIDIA: Nemotron 3 Super (free) \u00b7 Kilo",
+    "context_length": 262144
+  },
+  "Kilo:openrouter/free": {
+    "provider": "kilo",
+    "model": "openrouter/free",
+    "label": "Free Models Router | Kilo (model fallback)",
+    "context_length": 256000,
+    "steps": [
+      {
+        "provider": "kilo",
+        "model": "openrouter/free",
+        "paid": false
+      },
+      {
+        "provider": "kilo",
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "paid": false
+      },
+      {
+        "provider": "kilo",
+        "model": "cohere/north-mini-code:free",
+        "paid": false
+      },
+      {
+        "provider": "kilo",
+        "model": "dots-studio/dots-3-note-preview:free",
+        "paid": false
+      }
+    ]
+  },
+  "LLM7:codestral-latest": {
+    "provider": "llm7",
+    "model": "codestral-latest",
+    "label": "Codestral latest \u00b7 LLM7",
+    "task_categories": [
+      "coding",
+      "titles"
+    ]
+  },
+  "LLM7:gemma4:31b": {
+    "provider": "llm7",
+    "model": "gemma4:31b",
+    "label": "Gemma 4 31B | LLM7 Paid (unfunded)",
+    "paid": true
+  },
+  "LLM7:minimax-m2.7": {
+    "provider": "llm7",
+    "model": "minimax-m2.7",
+    "label": "MiniMax M2.7 | LLM7 (provider unavailable)",
+    "context_length": 204800
+  },
+  "LLM7:mistral-Nemo-Instruct-2407": {
+    "provider": "llm7",
+    "model": "mistral-Nemo-Instruct-2407",
+    "label": "Mistral Nemo | LLM7",
+    "context_length": 128000
+  },
+  "Dahl:deepseek-ai/DeepSeek-V4-Flash-0731": {
+    "provider": "dahl",
+    "model": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "context_length": 131072,
+    "label": "DeepSeek V4 Flash | Dahl",
+    "paid": false
+  },
+  "Dahl:zai-org/GLM-5.3-Flash": {
+    "provider": "dahl",
+    "model": "zai-org/GLM-5.3-Flash",
+    "context_length": 131072,
+    "label": "GLM 5.3 Flash | Dahl",
+    "paid": false
+  },
+  "Dahl:MiniMaxAI/MiniMax-M2.7": {
+    "provider": "dahl",
+    "model": "MiniMaxAI/MiniMax-M2.7",
+    "context_length": 131072,
+    "label": "MiniMax M2.7 | Dahl",
+    "paid": false
+  },
+  "9Router:nvidia/deepseek-ai/deepseek-v4.1-flash": {
+    "provider": "9router",
+    "model": "nvidia/deepseek-ai/deepseek-v4.1-flash",
+    "context_length": 1048576,
+    "label": "DeepSeek V4.1 Flash | 9Router",
+    "paid": false
+  },
+  "9Router:nvidia/meta/llama-3.2-11b-vision-instruct": {
+    "provider": "9router",
+    "model": "nvidia/meta/llama-3.2-11b-vision-instruct",
+    "context_length": 131072,
+    "label": "Llama 3.2 11B Vision | 9Router",
+    "paid": false,
+    "supports_vision": true,
+    "task_categories": [
+      "vision"
+    ]
+  },
+  "9Router:nvidia/meta/muse-glimmer-30b": {
+    "provider": "9router",
+    "model": "nvidia/meta/muse-glimmer-30b",
+    "context_length": 131072,
+    "label": "Muse Glimmer 30B | 9Router",
+    "paid": false
+  },
+  "9Router:nvidia/nvidia/nemotron-3-super-120b-a12b": {
+    "provider": "9router",
+    "model": "nvidia/nvidia/nemotron-3-super-120b-a12b",
+    "context_length": 262144,
+    "label": "Nemotron 3 Super | 9Router",
+    "paid": false
+  },
+  "9Router:nvidia/nvidia/nemotron-3.5-lightning-30b-a3b": {
+    "provider": "9router",
+    "model": "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "context_length": 131072,
+    "label": "Nemotron 3.5 Lightning | 9Router",
+    "paid": false
+  },
+  "9Router:nvidia/openai/gpt-oss-20b": {
+    "provider": "9router",
+    "model": "nvidia/openai/gpt-oss-20b",
+    "context_length": 131072,
+    "label": "GPT-OSS 20B | 9Router",
+    "paid": false
+  },
+  "9Router:nvidia/z-ai/glm-5.3": {
+    "provider": "9router",
+    "model": "nvidia/z-ai/glm-5.3",
+    "context_length": 1048576,
+    "label": "GLM 5.3 | 9Router",
+    "paid": false
+  },
+  "9Router:nvidia/z-ai/glm-5.3-flash": {
+    "provider": "9router",
+    "model": "nvidia/z-ai/glm-5.3-flash",
+    "context_length": 1048576,
+    "label": "GLM 5.3 Flash | 9Router",
+    "paid": false
+  },
+  "FreeLLMAPI:auto:smart": {
+    "provider": "freellmapi",
+    "model": "auto:smart",
+    "context_length": 128000,
+    "label": "Smart Free Router | FreeLLMAPI",
+    "paid": false
+  },
+  "FreeLLMAPI:nemotron-3.5-lightning": {
+    "provider": "freellmapi",
+    "model": "nemotron-3.5-lightning",
+    "context_length": 1000000,
+    "label": "Nemotron 3.5 Lightning | FreeLLMAPI",
+    "paid": false
+  },
+  "FreeLLMAPI:dots3-note-preview": {
+    "provider": "freellmapi",
+    "model": "dots3-note-preview",
+    "context_length": 512000,
+    "label": "Dots3 Note | FreeLLMAPI",
+    "paid": false
+  },
+  "OmniRoute:nvidia/nvidia/nemotron-3.5-lightning-30b-a3b": {
+    "provider": "omniroute",
+    "model": "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "context_length": 65536,
+    "label": "Nemotron 3.5 Lightning | OmniRoute",
+    "paid": false
+  },
+  "OmniRoute:openrouter/nvidia/nemotron-3-super-120b-a12b:free": {
+    "provider": "omniroute",
+    "model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    "context_length": 65536,
+    "label": "Nemotron 3 Super | OmniRoute",
+    "paid": false
+  },
+  "OVH:gpt-oss-20b": {
+    "provider": "ovh",
+    "model": "gpt-oss-20b",
+    "context_length": 131072,
+    "label": "GPT-OSS 20B | OVH (anonymous)",
+    "paid": false
+  },
+  "OVH:Qwen3.8-27B": {
+    "provider": "ovh",
+    "model": "Qwen3.8-27B",
+    "context_length": 131072,
+    "label": "Qwen3.8 27B | OVH (anonymous)",
+    "paid": false
+  },
+  "OpenRouter:deepseek/deepseek-v4-flash": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-flash",
+    "context_length": 131072,
+    "label": "DeepSeek V4 Flash | OpenRouter Paid (unfunded)",
+    "paid": true
+  },
+  "Groq:openai/gpt-oss-120b": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "context_length": 131072,
+    "label": "GPT-OSS 120B | Groq Free",
+    "paid": false,
+    "supports_tools": true,
+    "task_categories": [
+      "general",
+      "coding",
+      "titles",
+      "compression",
+      "review",
+      "classification"
+    ]
+  },
+  "Groq:openai/gpt-oss-20b": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-20b",
+    "context_length": 131072,
+    "label": "GPT-OSS 20B | Groq Free",
+    "paid": false,
+    "supports_tools": true,
+    "task_categories": [
+      "general",
+      "coding",
+      "titles",
+      "compression",
+      "review",
+      "classification"
+    ]
+  },
+  "FreeLLMAPI:fusion": {
+    "provider": "freellmapi",
+    "model": "fusion",
+    "label": "Fusion (two free models) | FreeLLMAPI",
+    "context_length": 256000,
+    "paid": false,
+    "supports_tools": true,
+    "task_categories": [
+      "titles",
+      "compression",
+      "review",
+      "classification",
+      "coding"
+    ]
+  },
+  "BlockRun:nvidia/nemotron-3.5-lightning": {
+    "provider": "blockrun",
+    "model": "nvidia/nemotron-3.5-lightning",
+    "label": "Nemotron 3.5 Lightning | BlockRun Free",
+    "context_length": 1000000,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "compression"
+    ]
+  },
+  "BlockRun:nvidia/nemotron-3-ultra-550b": {
+    "provider": "blockrun",
+    "model": "nvidia/nemotron-3-ultra-550b",
+    "label": "Nemotron 3 Ultra 550B | BlockRun Free",
+    "context_length": 1000000,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "general",
+      "compression",
+      "review"
+    ]
+  },
+  "BlockRun:cohere/north-mini-code": {
+    "provider": "blockrun",
+    "model": "cohere/north-mini-code",
+    "label": "Cohere North Mini Code | BlockRun Free",
+    "context_length": 256000,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "coding",
+      "compression",
+      "review"
+    ]
+  },
+  "BlockRun:poolside/laguna-xs-2.1": {
+    "provider": "blockrun",
+    "model": "poolside/laguna-xs-2.1",
+    "label": "Poolside Laguna XS 2.1 | BlockRun Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "coding",
+      "titles"
+    ]
+  },
+  "BlockRun:nvidia/muse-glimmer-30b": {
+    "provider": "blockrun",
+    "model": "nvidia/muse-glimmer-30b",
+    "label": "Muse Glimmer 30B | BlockRun Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "general",
+      "compression"
+    ]
+  },
+  "Typhoon:typhoon-v2.5-30b-a3b-instruct": {
+    "provider": "Typhoon",
+    "model": "typhoon-v2.5-30b-a3b-instruct",
+    "label": "Typhoon 2.5 30B A3B | Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "coding",
+      "titles",
+      "compression",
+      "review",
+      "classification"
+    ]
+  },
+  "Ollama:gpt-oss:120b": {
+    "provider": "Ollama",
+    "model": "gpt-oss:120b",
+    "label": "GPT-OSS 120B | Ollama Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "general",
+      "coding",
+      "titles",
+      "compression",
+      "review",
+      "classification"
+    ]
+  },
+  "PublicAI:aisingapore/Qwen-SEA-LION-v4-32B-IT": {
+    "provider": "PublicAI",
+    "model": "aisingapore/Qwen-SEA-LION-v4-32B-IT",
+    "label": "Qwen SEA-LION 4 32B | Public AI Trial",
+    "context_length": 32768,
+    "paid": true,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "starter_credit",
+    "task_categories": [
+      "coding",
+      "titles",
+      "review",
+      "classification"
+    ]
+  },
+  "Agnes:agnes-3.0-flash": {
+    "provider": "Agnes",
+    "model": "agnes-3.0-flash",
+    "label": "Agnes 3.0 Flash | Agnes Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": true,
+    "access_type": "free",
+    "task_categories": [
+      "general",
+      "titles",
+      "compression",
+      "review",
+      "classification",
+      "coding",
+      "vision"
+    ]
+  },
+  "Agnes:agnes-2.5-flash": {
+    "provider": "Agnes",
+    "model": "agnes-2.5-flash",
+    "label": "Agnes 2.5 Flash | Agnes Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": true,
+    "access_type": "free",
+    "task_categories": [
+      "general",
+      "titles",
+      "compression",
+      "review",
+      "classification",
+      "coding",
+      "vision"
+    ]
+  },
+  "Onomeo:ministral-14b-latest": {
+    "provider": "Onomeo",
+    "model": "ministral-14b-latest",
+    "label": "Ministral 14B | Onomeo Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "titles",
+      "review",
+      "classification"
+    ]
+  },
+  "Onomeo:gpt-oss-20b": {
+    "provider": "Onomeo",
+    "model": "gpt-oss-20b",
+    "label": "GPT-OSS 20B | Onomeo Free",
+    "context_length": 131072,
+    "paid": false,
+    "supports_tools": true,
+    "supports_vision": false,
+    "access_type": "free",
+    "task_categories": [
+      "general"
+    ]
+  },
+  "default": {
+    "steps": [
+      {
+        "provider": "openrouter",
+        "models": [
+          "openrouter/free",
+          "apodex/apodex-1.1-mini:free",
+          "dots-studio/dots-3-note-preview:free",
+          "liquid/lfm-2.5-2.6b:free",
+          "nvidia/nemotron-3.5-lightning:free",
+          "cohere/north-mini-code:free",
+          "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "xkiro",
+        "models": [
+          "qwen/qwen3.8-max:free",
+          "qwen/qwen3-coder-plus:free",
+          "qwen/qwen3.7-flash:free"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "dahl",
+        "models": [],
+        "paid": false,
+        "excluded_models": [
+          {
+            "model": "deepseek-ai/DeepSeek-V4-Flash-0731",
+            "reason": "Disabled in automatic routing; select explicitly after verifying your provider account."
+          },
+          {
+            "model": "zai-org/GLM-5.3-Flash",
+            "reason": "Disabled in automatic routing; select explicitly after verifying your provider account."
+          },
+          {
+            "model": "MiniMaxAI/MiniMax-M2.7",
+            "reason": "Disabled in automatic routing; select explicitly after verifying your provider account."
+          }
+        ]
+      },
+      {
+        "provider": "codiv",
+        "models": [
+          "diffusiongemma-26b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "freellmapi",
+        "models": [
+          "auto:smart",
+          "fusion",
+          "nemotron-3.5-lightning",
+          "dots3-note-preview"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "omniroute",
+        "models": [
+          "auto"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "9router",
+        "models": [
+          "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+          "nvidia/deepseek-ai/deepseek-v4.1-flash",
+          "nvidia/meta/llama-3.2-11b-vision-instruct",
+          "nvidia/meta/muse-glimmer-30b",
+          "nvidia/nvidia/nemotron-3-super-120b-a12b",
+          "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+          "nvidia/openai/gpt-oss-20b",
+          "nvidia/z-ai/glm-5.3",
+          "nvidia/z-ai/glm-5.3-flash"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "kilo",
+        "models": [
+          "nvidia/nemotron-3-super-120b-a12b:free"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "nim",
+        "models": [
+          "deepseek-ai/deepseek-v4.1-flash",
+          "meta/llama-3.2-11b-vision-instruct",
+          "meta/muse-glimmer-30b",
+          "nvidia/nemotron-3-super-120b-a12b",
+          "nvidia/nemotron-3-ultra-550b-a55b",
+          "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "openai/gpt-oss-20b",
+          "z-ai/glm-5.3",
+          "z-ai/glm-5.3-flash"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "ovh",
+        "models": [
+          "gpt-oss-20b",
+          "Qwen3.8-27B"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "groq",
+        "models": [
+          "openai/gpt-oss-120b",
+          "openai/gpt-oss-20b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "blockrun",
+        "models": [
+          "nvidia/nemotron-3.5-lightning",
+          "nvidia/nemotron-3-ultra-550b",
+          "cohere/north-mini-code",
+          "poolside/laguna-xs-2.1",
+          "nvidia/muse-glimmer-30b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Typhoon",
+        "models": [
+          "typhoon-v2.5-30b-a3b-instruct"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Ollama",
+        "models": [
+          "gpt-oss:120b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Agnes",
+        "models": [
+          "agnes-3.0-flash",
+          "agnes-2.5-flash"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "Onomeo",
+        "models": [
+          "ministral-14b-latest",
+          "gpt-oss-20b"
+        ],
+        "paid": false
+      },
+      {
+        "provider": "chatgpt",
+        "models": [
+          "gpt-5.6-sol",
+          "gpt-5.6-terra",
+          "gpt-5.6-luna",
+          "gpt-6-astra"
+        ],
+        "paid": true
+      },
+      {
+        "provider": "openrouter",
+        "models": [
+          "deepseek/deepseek-v4-flash"
+        ],
+        "paid": true
+      }
+    ],
+    "context_length": 131072,
+    "label": "Relay | Task routing, free first",
+    "routing_policy": "task_within_cost_tier"
+  },
+  "OmniRoute:auto": {
+    "provider": "omniroute",
+    "model": "auto",
+    "context_length": 65536,
+    "label": "Auto combo | OmniRoute",
+    "paid": false
+  }
+}
