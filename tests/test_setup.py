@@ -12,7 +12,9 @@ import relay_config as config
 def test_each_provider_has_link_hidden_key_and_persistent_wiring(definition, capsys):
     key = 'fixture-provider-token-123456'
     base = definition['base'] or 'https://gateway.example/v1'
-    with patch('builtins.input', side_effect=['y', base]), patch('getpass.getpass', return_value=key):
+    # Providers with a known endpoint only ask for the key; gateways also ask for their URL.
+    inputs = [] if definition['base'] else [base]
+    with patch('builtins.input', side_effect=inputs), patch('getpass.getpass', return_value=key):
         assert relay.setup(definition['id']) == 0
     saved = config.load_config()['providers'][definition['id']]
     assert saved['key'] == key
@@ -34,12 +36,12 @@ def test_clickable_terminal_link_and_plain_fallback():
     assert '\x1b' not in relay.hyperlink('https://console.groq.com/keys', stream=io.StringIO())
 
 def test_repeat_setup_keep_disable_and_cancel(capsys):
-    with patch('builtins.input', side_effect=['y', '']), patch('getpass.getpass', return_value='fixture-keep-key'):
+    with patch('builtins.input', side_effect=[]), patch('getpass.getpass', return_value='fixture-keep-key'):
         relay.setup('groq')
     with patch('builtins.input', return_value=''):
         relay.setup('groq')
     assert config.configured_providers()['groq']['key'] == 'fixture-keep-key'
-    with patch('builtins.input', side_effect=['u', '']), patch('getpass.getpass', side_effect=KeyboardInterrupt()):
+    with patch('builtins.input', side_effect=['r']), patch('getpass.getpass', side_effect=KeyboardInterrupt()):
         with pytest.raises(KeyboardInterrupt):
             relay.setup('groq')
     assert config.configured_providers()['groq']['key'] == 'fixture-keep-key'
@@ -50,7 +52,7 @@ def test_repeat_setup_keep_disable_and_cancel(capsys):
 
 def test_anonymous_access_is_explicit():
     assert not config.configured_providers()['kilo']['anonymous']
-    with patch('builtins.input', side_effect=['y', '', 'y']), patch('getpass.getpass', return_value=''):
+    with patch('builtins.input', side_effect=['y']), patch('getpass.getpass', return_value=''):
         relay.setup('kilo')
     assert config.configured_providers()['kilo']['anonymous']
 
@@ -90,7 +92,7 @@ def test_paid_routes_blocked_by_default(monkeypatch):
     assert len(router._steps('Relay', entry)) == 2
 
 def test_dahl_setup_uses_live_allowance_pool(monkeypatch):
-    with patch('builtins.input', side_effect=['y', '']), patch('getpass.getpass', return_value='fixture-dahl-key'):
+    with patch('builtins.input', side_effect=[]), patch('getpass.getpass', return_value='fixture-dahl-key'):
         relay.setup('dahl')
     config.apply_environment()
     assert json.loads(os.environ['DAHL_API_KEYS']) == ['fixture-dahl-key']
@@ -113,3 +115,50 @@ def test_response_style_is_opt_in(monkeypatch):
     payload = {'messages': [{'role': 'user', 'content': 'hello'}]}
     assert not router.DIRECTIVES_ENABLED
     assert router.apply_directives(payload) is payload
+
+def test_menu_picks_by_number_or_id_and_survives_bad_input(capsys):
+    numbers = {p['id']: str(i) for i, p in enumerate(config.definitions(), 1)}
+    answers = ['nope', numbers['groq'], 'OpenRouter', '']
+    keys = ['fixture-groq-key', 'fixture-openrouter-key']
+    with patch('builtins.input', side_effect=answers), patch('getpass.getpass', side_effect=keys):
+        assert relay.setup() == 0
+    ready = config.configured_providers()
+    assert ready['groq']['key'] == 'fixture-groq-key'
+    assert ready['openrouter']['key'] == 'fixture-openrouter-key'
+    output = capsys.readouterr().out
+    assert 'Not a provider number or ID.' in output
+    assert '2 provider(s) ready' in output
+    assert 'fixture-groq-key' not in output
+
+def test_menu_reports_errors_and_keeps_going(capsys):
+    # A gateway with no URL entered is rejected without ending the session.
+    with patch('builtins.input', side_effect=['9router', '', '']), patch('getpass.getpass', return_value='unused'):
+        assert relay.setup() == 0
+    output = capsys.readouterr().out
+    assert 'Error: 9Router gateway needs the API base URL' in output
+    assert 'No providers set up yet' in output
+
+def test_url_flag_allows_custom_endpoint_for_known_provider():
+    with patch('builtins.input', side_effect=['https://eu.example.com/v1']), patch('getpass.getpass', return_value='fixture-ovh'):
+        relay.setup('ovh', ask_url=True)
+    assert config.configured_providers()['ovh']['base'] == 'https://eu.example.com/v1'
+    # Re-running without --url keeps the saved custom endpoint.
+    with patch('builtins.input', side_effect=['r']), patch('getpass.getpass', return_value='fixture-ovh-2'):
+        relay.setup('ovh')
+    assert config.configured_providers()['ovh'] == {**config.configured_providers()['ovh'],
+                                                     'base': 'https://eu.example.com/v1', 'key': 'fixture-ovh-2'}
+
+def test_offer_to_start_only_in_an_interactive_terminal(monkeypatch):
+    config.save_config({'version': 1, 'providers': {'groq': {'enabled': True, 'base': 'https://api.groq.com/openai/v1', 'key': 'fixture'}}})
+    started = []
+    monkeypatch.setattr(relay, 'serve', lambda host, port: started.append((host, port)) or 0)
+    with patch('builtins.input', side_effect=['']):
+        assert relay.setup(offer_start=True) == 0
+    assert not started
+    monkeypatch.setattr('sys.stdin.isatty', lambda: True, raising=False)
+    with patch('builtins.input', side_effect=['', '']):
+        assert relay.setup(offer_start=True) == 0
+    assert started == [('127.0.0.1', 11437)]
+    with patch('builtins.input', side_effect=['', 'n']):
+        assert relay.setup(offer_start=True) == 0
+    assert len(started) == 1

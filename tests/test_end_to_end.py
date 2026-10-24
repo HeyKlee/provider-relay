@@ -92,8 +92,8 @@ def running(port, env):
 def test_setup_check_json_stream_failover_auth_and_restart(monkeypatch, tmp_path, capsys):
     with upstream() as (base, seen):
         for identity, key in [('groq', 'fixture-bad-key'), ('nim', 'fixture-good-key')]:
-            with patch('builtins.input', side_effect=['y', base]), patch('getpass.getpass', return_value=key):
-                assert relay.setup(identity) == 0
+            with patch('builtins.input', side_effect=[base]), patch('getpass.getpass', return_value=key):
+                assert relay.setup(identity, ask_url=True) == 0
         assert relay.check('nim') == 0
         catalogue = tmp_path / 'models.json'
         catalogue.write_text(json.dumps({'Relay': {'steps': [
@@ -129,8 +129,8 @@ def test_setup_check_json_stream_failover_auth_and_restart(monkeypatch, tmp_path
 def test_check_chat_uses_saved_direct_credentials_and_cost_metadata(capsys, monkeypatch):
     monkeypatch.delenv('ALLOW_PAID')
     with upstream() as (base, seen):
-        with patch('builtins.input', side_effect=['y', base]), patch('getpass.getpass', return_value='fixture-good-key'):
-            relay.setup('groq')
+        with patch('builtins.input', side_effect=[base]), patch('getpass.getpass', return_value='fixture-good-key'):
+            relay.setup('groq', ask_url=True)
         assert relay.check('groq', chat=True) == 0
         assert seen[0][0] == 'Bearer fixture-good-key'
         assert seen[0][1]['model'] == 'openai/gpt-oss-120b'
