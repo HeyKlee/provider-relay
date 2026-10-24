@@ -2,7 +2,9 @@
 
 ## Automated checks
 
-Native Windows Python 3.12: 168 automated tests passed. The suite covers provider setup, hidden-key entry, configuration persistence, HTTP requests, streaming, failover, authentication, request validation, redaction, provider accounting and opt-in response styles. Tests use disposable credentials and local mock providers.
+0.1.2, Linux Python 3.13: 172 automated tests passed (168 existing tests, setup prompt sequences updated, plus 4 new tests for the provider menu, gateway URL errors, `setup --url` and the start-now offer). Setup and start-up were also driven through a real pseudo-terminal: hidden key entry, menu selection, anonymous opt-in, config file mode 0600 and directory mode 0700, the start-now offer, `/live` and `/v1/models` responses, and Ctrl+C shutdown. No live provider inference was performed.
+
+0.1.1, native Windows Python 3.12: 168 automated tests passed. The suite covers provider setup, hidden-key entry, configuration persistence, HTTP requests, streaming, failover, authentication, request validation, redaction, provider accounting and opt-in response styles. Tests use disposable credentials and local mock providers.
 
 ## Privacy checks
 
@@ -16,4 +18,4 @@ Native Windows Python 3.12: 168 automated tests passed. The suite covers provide
 
 Live provider inference requires each user's own API keys and account quota. Catalogue access, inference, streaming, tool use, vision and context capacity are separate checks. Local mock tests do not establish live provider capabilities.
 
-Linux/macOS runtime, full model contexts and Docker execution have not been verified locally. The optional manual CI matrix can test supported operating systems. Gateway deployment and account login are configured separately.
+Windows has not been re-run since the 0.1.2 setup changes. macOS runtime, full model contexts and Docker execution have not been verified locally. The optional manual CI matrix can test supported operating systems. Gateway deployment and account login are configured separately.

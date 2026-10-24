@@ -31,62 +31,129 @@ def hidden_key(prompt):
         raise ValueError('The API key must contain printable ASCII characters without spaces.')
     return value
 
+CMD = 'python' if os.name == 'nt' else 'python3'
+DEFAULT_HOST = os.environ.get('PROXY_HOST', '127.0.0.1')
+DEFAULT_PORT = int(os.environ.get('PROXY_PORT', '11437'))
+
 def select_providers(only):
     selected = [p for p in definitions() if not only or p['id'].lower() == only.lower()]
     if not selected:
-        raise ValueError('Unknown provider. Run python relay.py providers for valid IDs.')
+        raise ValueError(f'Unknown provider. Run {CMD} relay.py providers to see valid IDs.')
     return selected
 
-def setup(only=None):
-    config = load_config()
-    print('Provider Relay setup\n')
-    print('Choose providers to configure. Keys are hidden and stored only in the private local config.')
-    print('Each saved provider can be kept, updated or disabled. No requests are sent during setup.')
-    for provider in select_providers(only):
-        identity = provider['id']
-        old = config['providers'].get(identity, {})
-        print(f'\n{provider["name"]} [{identity}]')
-        print(hyperlink(provider['site']))
-        print(provider['note'])
-        prompt = 'Update, keep or disable? [u/K/d]: ' if old.get('enabled') else 'Configure this provider? [y/N]: '
-        answer = input(prompt).strip().lower()
-        if old.get('enabled') and answer == 'd':
+def is_ready(row):
+    return bool(row.get('key') or row.get('anonymous'))
+
+def show_menu():
+    ready = configured_providers()
+    rows = list(enumerate(definitions(), 1))
+    for title, group in (('Hosted providers', [r for r in rows if r[1]['base']]),
+                         ('Your own endpoint (self-hosted gateways)', [r for r in rows if not r[1]['base']])):
+        print(f'\n{title}')
+        for number, provider in group:
+            if is_ready(ready[provider['id']]):
+                status = 'ready'
+            else:
+                status = 'key optional' if provider.get('allow_anonymous') else ''
+            print(f'  {number:>2}  {provider["name"]:<36} {status}')
+
+def pick_provider(choice):
+    providers = definitions()
+    if choice.isdigit() and 1 <= int(choice) <= len(providers):
+        return providers[int(choice) - 1]
+    return next((p for p in providers if p['id'].lower() == choice.lower()), None)
+
+def configure_provider(provider, config, ask_url=False):
+    """Set up one provider: show where to get a key, then ask for it."""
+    identity = provider['id']
+    old = config['providers'].get(identity, {})
+    print(f'\n--- {provider["name"]} ---')
+    print(hyperlink(provider['site'], 'Get a key'))
+    print(provider['note'])
+    if old.get('enabled'):
+        answer = input('Already set up. Press Enter to keep it, [r] to replace the key, [d] to disable: ').strip().lower()
+        if answer in ('d', 'disable'):
             config['providers'][identity] = {'enabled': False}
             save_config(config)
             print('Disabled; saved key removed.')
-            continue
-        if answer not in (('u', 'update') if old.get('enabled') else ('y', 'yes')):
-            print('Kept.' if old.get('enabled') else 'Skipped.')
-            continue
-        default_base = old.get('base') or provider['base']
-        base = input(f'API base URL [{default_base or "required"}]: ').strip() or default_base
-        base = validate_base(base)
-        key = hidden_key('Paste API key (hidden, Enter to keep saved key or choose anonymous): ')
-        key = key or old.get('key', '')
-        anonymous = False
-        if not key:
-            if not provider.get('allow_anonymous'):
-                print('No key entered; previous configuration kept.')
+            return
+        if answer not in ('r', 'replace', 'u', 'update'):
+            print('Kept.')
+            return
+    base = old.get('base') or provider['base']
+    if ask_url or not base:
+        prompt = f'API base URL [{base}]: ' if base else 'API base URL of your gateway (for example http://127.0.0.1:3000/v1): '
+        base = input(prompt).strip() or base
+        if not base:
+            raise ValueError(f'{provider["name"]} needs the API base URL of your own installation.')
+    else:
+        print('Endpoint: ' + base)
+    base = validate_base(base)
+    if old.get('key'):
+        hint = 'Enter keeps the saved key'
+    elif provider.get('allow_anonymous'):
+        hint = 'Enter to use it without a key'
+    else:
+        hint = 'Enter to skip'
+    key = hidden_key(f'Paste API key (hidden; {hint}): ') or old.get('key', '')
+    anonymous = False
+    if not key:
+        if not provider.get('allow_anonymous'):
+            print('No key entered; nothing changed.')
+            return
+        anonymous = input(f'Use {provider["name"]} without a key? [y/N]: ').strip().lower() in ('y', 'yes')
+        if not anonymous:
+            print('Nothing changed.')
+            return
+    config['providers'][identity] = {'enabled': True, 'base': base, 'key': key, 'anonymous': anonymous}
+    save_config(config)
+    print(f'Saved {provider["name"]}.')
+
+def setup(only=None, ask_url=False, offer_start=False):
+    config = load_config()
+    if only:
+        configure_provider(select_providers(only)[0], config, ask_url)
+    else:
+        print('Provider Relay setup\n')
+        print('Relay needs an API key from at least one provider. Pick one below, open its')
+        print('link, create a key and paste it here. OpenRouter and Groq are quick places to start.')
+        print(f'Keys are stored only on this computer: {config_path()}')
+        show_menu()
+        prompt = '\nType a number to set up a provider (Enter when finished): '
+        while True:
+            choice = input(prompt).strip()
+            if choice.lower() in ('', 'q', 'quit', 'done'):
+                break
+            if choice.lower() in ('l', 'list'):
+                show_menu()
                 continue
-            anonymous = input('Enable this endpoint without a key? [y/N]: ').strip().lower() in ('y', 'yes')
-            if not anonymous:
-                print('Previous configuration kept.')
+            prompt = '\nAnother number, [l] to list providers, or Enter to finish: '
+            provider = pick_provider(choice)
+            if provider is None:
+                print('Not a provider number or ID.')
                 continue
-        config['providers'][identity] = {'enabled': True, 'base': base, 'key': key, 'anonymous': anonymous}
-        save_config(config)
-        print('Saved locally.')
-    count = sum(bool(v.get('enabled')) for v in config['providers'].values())
-    print(f'\n{count} provider(s) enabled. Paid routes are disabled by default.')
-    print('Next: python relay.py check\nStart: python relay.py serve')
+            try:
+                configure_provider(provider, config, ask_url)
+            except ValueError as exc:
+                print('Error: ' + str(exc))
+    count = sum(is_ready(row) for row in configured_providers().values())
+    if not count:
+        print(f'\nNo providers set up yet. Run {CMD} relay.py again when you have a key.')
+        return 0
+    print(f'\n{count} provider(s) ready. Paid models stay off unless you start with --allow-paid.')
+    if offer_start and sys.stdin.isatty():
+        if input('Start the relay now? [Y/n]: ').strip().lower() in ('', 'y', 'yes'):
+            return serve(DEFAULT_HOST, DEFAULT_PORT)
+    print(f'Optional test: {CMD} relay.py check')
+    print(f'Start the relay: {CMD} relay.py serve')
     return 0
 
 def provider_list():
     configured = configured_providers()
     for provider in definitions():
-        row = configured[provider['id']]
-        status = 'configured' if row.get('key') or row.get('anonymous') else 'disabled'
-        print(f'{provider["id"]:12} {status:10} {provider["name"]}')
-        print('  ' + hyperlink(provider['site']))
+        status = 'ready' if is_ready(configured[provider['id']]) else 'not set'
+        print(f'{provider["id"]:12} {status:8} {provider["name"]}')
+        print('  ' + hyperlink(provider['site'], 'Get a key'))
     return 0
 
 def request(provider, method, suffix, payload=None):
@@ -148,7 +215,7 @@ def check(only=None, chat=False):
             failures += 1
             print(f'{identity}: FAIL ({redact(str(exc))})')
     if not tested:
-        print('No providers configured. Run python relay.py setup.')
+        print(f'No providers configured. Run {CMD} relay.py to set one up.')
         return 1
     return 1 if failures else 0
 
@@ -158,7 +225,7 @@ def serve(host, port):
     apply_environment()
     providers = configured_providers()
     if not any(p.get('key') or p.get('anonymous') for p in providers.values()):
-        raise ValueError('No providers configured. Run python relay.py setup.')
+        raise ValueError(f'No providers configured. Run {CMD} relay.py to set one up.')
     os.environ['PROXY_HOST'], os.environ['PROXY_PORT'] = host, str(port)
     import router
     catalogue = router.load_catalog()
@@ -168,8 +235,12 @@ def serve(host, port):
         print('Automatic routing has no eligible provider. Choose an individual model alias from /v1/models.', flush=True)
     router._load_budget()
     router._start_dahl_monitor()
-    print(f'Provider Relay listening at http://{host}:{port}/v1 (model: Relay)', flush=True)
-    print('Ctrl+C stops the server. /live reports process liveness; /health reports observed upstream results.', flush=True)
+    client_key = 'your PROXY_API_KEY' if os.environ.get('PROXY_API_KEY') else 'any placeholder, e.g. "relay"'
+    print('Provider Relay is running. Point your app at:', flush=True)
+    print(f'  Base URL  http://{host}:{port}/v1', flush=True)
+    print('  Model     Relay (automatic), or any alias listed at /v1/models', flush=True)
+    print(f'  API key   {client_key}', flush=True)
+    print('Press Ctrl+C to stop.', flush=True)
     try:
         with router.ThreadingHTTPServer((host, port), router.Handler) as server:
             server.serve_forever()
@@ -183,16 +254,17 @@ def main():
     parser = argparse.ArgumentParser(description='Provider Relay: bring your own provider keys.')
     parser.add_argument('--config', help='Private configuration path (default: .provider-relay/config.json)')
     sub = parser.add_subparsers(dest='command')
-    wizard = sub.add_parser('setup', help='Guided provider setup with terminal hyperlinks and hidden keys')
-    wizard.add_argument('--only', help='Configure one provider ID')
-    sub.add_parser('providers', help='List all providers without displaying keys')
-    probe = sub.add_parser('check', help='Check catalogue access, or explicitly test inference')
-    probe.add_argument('--only')
+    wizard = sub.add_parser('setup', help='Add, change or remove provider keys (default command)')
+    wizard.add_argument('--only', help='Set up a single provider by ID (see: providers)')
+    wizard.add_argument('--url', action='store_true', help='Also ask for the API base URL (custom or regional endpoints)')
+    sub.add_parser('providers', help='List providers and which are ready (never shows keys)')
+    probe = sub.add_parser('check', help='Test that configured providers respond')
+    probe.add_argument('--only', help='Check a single provider by ID')
     probe.add_argument('--chat', action='store_true', help='Send a small inference request; may consume quota')
     probe.add_argument('--allow-paid', action='store_true', help='Permit paid inference in this command')
-    server = sub.add_parser('serve', help='Start the compatible API on loopback')
-    server.add_argument('--host', default=os.environ.get('PROXY_HOST', '127.0.0.1'))
-    server.add_argument('--port', type=int, default=int(os.environ.get('PROXY_PORT', '11437')))
+    server = sub.add_parser('serve', help='Start the OpenAI-compatible API (local only by default)')
+    server.add_argument('--host', default=DEFAULT_HOST)
+    server.add_argument('--port', type=int, default=DEFAULT_PORT)
     server.add_argument('--allow-paid', action='store_true', help='Permit fallback to paid routes')
     args = parser.parse_args()
     if args.config:
@@ -201,7 +273,8 @@ def main():
         os.environ['ALLOW_PAID'] = '1'
     try:
         if args.command in (None, 'setup'):
-            return setup(getattr(args, 'only', None))
+            only = getattr(args, 'only', None)
+            return setup(only, getattr(args, 'url', False), offer_start=not only)
         if args.command == 'providers':
             return provider_list()
         if args.command == 'check':

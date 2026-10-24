@@ -1,95 +1,177 @@
 # Provider Relay
 
-A self-contained, OpenAI-compatible Python router with guided terminal setup. Bring your own provider keys. Runtime uses Python's standard library and has no package dependencies.
+One local, OpenAI-compatible endpoint in front of many AI providers. You bring your own API keys; Relay picks a provider for each request and moves on to the next one if it fails.
 
-## Start
+It is plain Python 3.11+ with no packages to install.
 
-Install Python 3.11 or newer. Download or clone this repository using its Code menu, then open a terminal in the repository directory.
+## Quick start
 
-```powershell
-python relay.py setup
-if ($LASTEXITCODE -ne 0) { throw 'Setup did not finish' }
-python relay.py serve
+1. Install [Python 3.11 or newer](https://www.python.org/downloads/).
+2. Download this repository (green **Code** button → **Download ZIP**, then unzip) or `git clone` it.
+3. Open a terminal in the folder and run:
+
+   ```sh
+   python relay.py        # Windows
+   python3 relay.py       # macOS / Linux
+   ```
+
+4. Type the number of a provider, open the link it shows, create a key and paste it. The key is hidden as you paste. Add more providers if you like, then press **Enter**.
+5. Answer **Y** to "Start the relay now?".
+
+That's it. Relay is now running at `http://127.0.0.1:11437/v1`.
+
+## Connect your app
+
+Use these settings in any OpenAI-compatible app or SDK (Open WebUI, the OpenAI libraries, and so on):
+
+| Setting  | Value |
+|----------|-------|
+| Base URL | `http://127.0.0.1:11437/v1` |
+| Model    | `Relay` for automatic routing, or a specific alias from `/v1/models` |
+| API key  | Anything, e.g. `relay` (your real provider keys stay in Relay) |
+
+Python example:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://127.0.0.1:11437/v1", api_key="relay")
+reply = client.chat.completions.create(
+    model="Relay",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(reply.choices[0].message.content)
 ```
 
-Linux and macOS:
+curl:
 
 ```sh
-python3 relay.py setup && python3 relay.py serve
+curl http://127.0.0.1:11437/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model": "Relay", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
-The setup walks through every provider. Each page shows a clickable website link and instructions for obtaining a key. Choose a provider, confirm its endpoint, and paste the key at the hidden prompt. Press Enter to skip providers. You can use one provider or several.
+## Everyday commands
 
-Links use OSC 8 in interactive terminals and include a visible URL. Older terminals can use the visible URL. Set `RELAY_PLAIN_LINKS=1` to turn off OSC 8. API-key input refuses to fall back to visible input.
+Use `python3` instead of `python` on macOS and Linux.
 
-The API listens at `http://127.0.0.1:11437/v1`. Choose model `Relay` for automatic routing, or an individual alias from `/v1/models`. `default` is an alias for `Relay`.
+| Command | What it does |
+|---------|--------------|
+| `python relay.py` | Add, replace or remove provider keys, then optionally start |
+| `python relay.py serve` | Start the relay |
+| `python relay.py providers` | List providers and which ones are ready |
+| `python relay.py check` | Check each ready provider responds (asks for its model list; no chat request) |
+| `python relay.py check --chat` | Send each one a tiny real message (uses a little quota) |
+| `python relay.py setup --only groq` | Set up just one provider |
+| `python relay.py setup --only ovh --url` | Also change a provider's endpoint URL |
 
-```powershell
-Invoke-RestMethod -Uri 'http://127.0.0.1:11437/v1/chat/completions' -Method Post -ContentType 'application/json' -Body '{"model":"Relay","messages":[{"role":"user","content":"Hello"}]}'
-```
-
-For SDKs that require a client API key, use a placeholder on loopback unless you set `PROXY_API_KEY`. Provider keys belong in setup, not in the client.
+Press **Ctrl+C** to stop the server.
 
 ## Providers
 
-Setup covers OpenRouter, Groq, NVIDIA NIM, xKiro, Dahl, Codiv, Kilo, BlockRun, OVH AI Endpoints, LLM7, Typhoon, Ollama Cloud, Public AI, Agnes, Onomeo, an OpenAI-compatible account gateway, FreeLLMAPI, OmniRoute and 9Router.
+You only need one. Re-run `python relay.py` any time to add more.
 
-The last three are optional, separately installed gateways. Setup links to their upstream projects and asks for your own API base URL and gateway key. It does not install them or configure their upstream accounts. Configure their dashboards separately. Gateway combo and model names must match your own installation. A gateway on the same machine can use an HTTP loopback URL. Remote gateways require HTTPS.
+| # | Provider (key page) | ID | Environment variable |
+|---|---------------------|----|----------------------|
+| 1 | [OpenRouter](https://openrouter.ai/settings/keys) | `openrouter` | `OPENROUTER_API_KEY` |
+| 2 | [Groq](https://console.groq.com/keys) | `groq` | `GROQ_API_KEY` |
+| 3 | [NVIDIA NIM](https://build.nvidia.com/) | `nim` | `NVIDIA_API_KEY` |
+| 4 | [xKiro](https://xkiro.com/login) | `xkiro` | `XKIRO_API_KEY` |
+| 5 | [Dahl](https://inference.dahl.global/) | `dahl` | `DAHL_API_KEY` |
+| 6 | [Codiv](https://codiv.ai/signup) | `codiv` | `CODIV_API_KEY` |
+| 7 | [Kilo Gateway](https://kilo.ai/docs/gateway/authentication) (key optional) | `kilo` | `KILO_API_KEY` |
+| 8 | [BlockRun free models](https://blockrun.ai/models?filter=free) (key optional) | `blockrun` | `BLOCKRUN_API_KEY` |
+| 9 | [OVH AI Endpoints](https://endpoints.ai.cloud.ovh.net/) | `ovh` | `OVH_API_KEY` |
+| 10 | [LLM7](https://llm7.io/) | `llm7` | `LLM7_API_KEY` |
+| 11 | [Typhoon](https://docs.opentyphoon.ai/en/quickstart/) | `typhoon` | `TYPHOON_API_KEY` |
+| 12 | [Ollama Cloud](https://ollama.com/settings/keys) | `ollama` | `OLLAMA_API_KEY` |
+| 13 | [Public AI](https://publicai.co/) | `publicai` | `PUBLICAI_API_KEY` |
+| 14 | [Agnes API Hub](https://apihub.agnes-ai.com/) | `agnes` | `AGNES_API_KEY` |
+| 15 | [Onomeo](https://onomeo.com/) | `onomeo` | `ONOMEO_API_KEY` |
 
-The OpenAI-compatible account gateway slot supports configurable model routing. Its model names are examples. If connecting directly to the OpenAI API, enter `https://api.openai.com/v1` and update this slot's model IDs in `models.json` to models available through your API account. A ChatGPT subscription does not supply an API key.
+**Bring your own endpoint.** These need a URL as well as a key. Setup asks for both.
 
-Each direct provider has an independent endpoint and key. Typhoon, Ollama Cloud, Public AI, Agnes and Onomeo call their native endpoints directly. Their model IDs have no gateway-specific wrappers. Ollama Cloud sends inference to Ollama's cloud and does not start a local model.
+| # | Gateway | ID | Environment variable |
+|---|---------|----|----------------------|
+| 16 | [OpenAI-compatible account gateway](https://platform.openai.com/api-keys) | `chatgpt` | `CHATGPT_API_KEY` |
+| 17 | [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi) | `freellmapi` | `OMNI_API_KEY` |
+| 18 | [OmniRoute](https://github.com/diegosouzapw/OmniRoute) | `omniroute` | `OMNIROUTE_API_KEY` |
+| 19 | [9Router](https://github.com/decolua/9router) | `9router` | `9ROUTER_API_KEY` |
 
-Provider websites, endpoint and model defaults are in `providers.json`. The catalogue contains 77 model aliases plus `default`. Model availability, free allowances, tools, vision and context limits depend on the provider and account. Catalogue metadata is configuration, not a claim that every model works with a new account. Confirm account details in your provider's dashboard.
+- **FreeLLMAPI, OmniRoute and 9Router** are separate projects you install and configure yourself. Give Relay the gateway's own URL and key, not an upstream provider key. A gateway on the same machine can use `http://127.0.0.1:...`; remote gateways must use HTTPS.
+- **OpenAI-compatible account gateway** works with the OpenAI API directly: enter `https://api.openai.com/v1` and change this slot's model IDs in `models.json` to models your account can use. A ChatGPT subscription is not an API key.
+- **Dahl** models are never picked automatically. Choose a Dahl alias by name.
+- Provider defaults (links, endpoints, models) live in `providers.json`; the model list lives in `models.json`. What a given account can actually use (models, free allowance, tools, vision, context size) depends on the provider. Check your provider dashboard.
 
-## Reconfigure and verify
+## How routing works
 
-```powershell
-python relay.py setup --only groq
-python relay.py providers
-python relay.py check
-python relay.py check --only groq --chat
-```
+When you ask for model `Relay`:
 
-`setup --only` accepts IDs shown by `providers`. Re-running setup keeps an existing key unless you update or disable that provider. Disable removes the saved key. Each completed provider is saved immediately; cancelling preserves completed entries.
+- Relay tries your ready providers in the order listed in `models.json`, **free models first**.
+- If a provider errors, times out or returns an empty answer, Relay moves to the next one. Providers that keep failing are skipped for a short while.
+- **Paid models are off by default.** Start with `python relay.py serve --allow-paid` to allow them. Free labels are best-effort metadata, not a billing guarantee, so set spending limits in each provider's dashboard.
+- Streaming (`"stream": true`) is supported.
 
-`check` tests catalogue access. `--chat` sends a small real inference request and may consume provider quota. These are different checks. No provider API requests occur during setup. Nonzero exit status means a check failed or no provider was configured. If an endpoint lacks `/models`, catalogue checking can fail even when chat works.
+Asking for a specific alias (for example `xKiro:qwen/qwen3.8-max:free`) sends the request to that model only.
 
-The router supports ordered failover, streaming, task selection, free-first ordering, conversation affinity, circuit breakers, bounded upstream concurrency, optional delayed parallel requests, Codiv bounded-context processing, and Dahl allowance tracking. Optional response-style directives are disabled by default; set `DIRECTIVES_ENABLED=1` to enable them. Set `HEDGE_ENABLED=0` to disable delayed parallel requests, which can consume quota on more than one provider.
+## Keys and security
 
-Routes marked paid are blocked by default. `python relay.py serve --allow-paid` permits them, and `check --chat --allow-paid` permits paid probe requests. Free-first metadata does not enforce an account's billing plan or guarantee that a provider remains free. Set account spending limits with each provider.
+- Keys are saved in `.provider-relay/config.json` inside this folder. Git and Docker ignore it. The folder is readable only by your user account. Keys are protected by file permissions, not encryption.
+- Setup never sends requests and never prints a key. Logs and error messages hide configured keys.
+- Relay listens only on this computer (`127.0.0.1`) by default. To accept connections from other machines, set `PROXY_API_KEY` to a secret of your choice and start with `--host 0.0.0.0`; clients then send that value as their API key. Relay does not set up firewalls, TLS or tunnels for you.
+- You can supply keys with the environment variables above instead of running setup. A provider you disabled in setup stays disabled even if its variable is set.
+- `python relay.py --config /some/private/path/config.json <command>` uses a different config file. Keep it outside this folder, and pass the same `--config` to every command.
 
-The router recognises optional `relay_task` hints: `coding`, `title`, `general`, `compression`, `review` and `classification`. Hints are stripped before forwarding to providers.
+## Troubleshooting
 
-`/live` reports process liveness. `/health` reports observed provider results and can return 503 before any successful inference. It is not an active probe. Health and affinity data are per process. Credentials and Dahl accounting state persist on disk; conversation affinity does not.
+| Message | Fix |
+|---------|-----|
+| `A terminal with hidden input is required` | Run setup in a normal terminal (Windows Terminal, Terminal.app, etc.), not an IDE output pane or a pipe. |
+| `No providers configured` | Run `python relay.py` and set up at least one provider. |
+| `check` says `FAIL (HTTP 401 ...)` | The key is wrong or expired. Run `python relay.py setup --only <id>` and choose **r** to replace it. |
+| `check` fails but chat works | Some providers have no model list. Try `python relay.py check --only <id> --chat`. |
+| `Automatic routing has no eligible provider` | None of your providers has a free model in the `Relay` chain (Dahl never counts). Pick a specific alias, add another provider, or use `--allow-paid`. |
+| Address already in use | Another program has port 11437. Use `python relay.py serve --port 11500`. |
 
-## Credentials and access
+`/live` shows whether the server process is up. `/health` shows how each provider in the `Relay` chain has been doing since start-up (it can report 503 until the first successful request).
 
-Keys are saved in `.provider-relay/config.json`, excluded from Git and Docker builds. On Windows the credentials directory has inheritance removed and access granted to the current user and SYSTEM. On Linux/macOS the directory uses mode 0700 and the config uses 0600. Keys are protected by filesystem permissions, not encrypted at rest. The setup never prints a key. Logs and JSON error responses redact configured keys.
+## Advanced settings
 
-Provider-specific environment variables can supply credentials instead of setup. Their names are listed in `providers.json`. An explicitly disabled saved provider remains disabled even if a matching environment variable exists. Dahl also accepts a JSON array in `DAHL_API_KEYS` for funded-key rotation.
+All optional. Set them as environment variables before `serve`.
 
-`python relay.py --config /path/outside/repo/config.json setup` selects another private config. Use the same option when starting or checking. Keep custom config paths outside the repository. Do not commit credentials, logs, runtime state or private config backups.
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `PROXY_API_KEY` | unset | Require this bearer token on every request. Needed for `--host` other than loopback. |
+| `PROXY_HOST` / `PROXY_PORT` | `127.0.0.1` / `11437` | Listen address (same as `--host` / `--port`). |
+| `ALLOW_PAID` | `0` | `1` is the same as `--allow-paid`. |
+| `HEDGE_ENABLED` | `1` | If the first provider is slow (non-streaming requests only), also ask the next one and keep the faster answer. Set `0` to avoid spending quota twice. |
+| `TASK_ROUTING` | `1` | Prefer models suited to the request (code, images, long context). Never removes a provider. |
+| `DIRECTIVES_ENABLED` | `0` | `1` adds a built-in "concise answers" system message to every request. |
+| `RELAY_PLAIN_LINKS` | unset | `1` prints plain URLs instead of clickable terminal links. |
+| `GROQ_BASE`, `NIM_BASE`, … | from `providers.json` | Override a provider's endpoint (names are in each provider's `base_env`). |
+| `DAHL_API_KEYS` | unset | JSON array of Dahl keys to rotate between. |
 
-The default is local access. `PROXY_API_KEY` enables bearer authentication on all endpoints. Listening beyond loopback requires this key when using the launcher. This repository does not configure firewall rules, tunnels, LAN access or TLS termination.
+Requests may include `"relay_task"` set to `coding`, `title`, `general`, `compression`, `review` or `classification` to hint the task. Relay removes it before forwarding.
 
 ## Docker (optional)
 
-Native Python is the simplest startup. To run in Docker, complete setup first and supply a client key in `PROXY_API_KEY`. Build the image from this directory. Bind the published port to `127.0.0.1` and mount `.provider-relay` at `/data`; the image reads `/data/config.json`. Upstream HTTP loopback URLs from native setup do not point to the host inside a container. Configure reachable HTTPS endpoints for container use.
+Native Python is simpler. If you prefer Docker, run setup natively first, then:
 
-The image requires `PROXY_API_KEY` because its internal listener uses `0.0.0.0`. Docker execution is separate from native runtime verification.
-
-## Tests and project record
-
-```powershell
-python -m venv .venv
-if ($LASTEXITCODE -ne 0) { throw 'Virtual environment creation failed' }
-& '.\.venv\Scripts\python.exe' -m pip install -r requirements-dev.txt
-if ($LASTEXITCODE -ne 0) { throw 'Test dependency installation failed' }
-& '.\.venv\Scripts\python.exe' -m pytest -q
-if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+```sh
+docker build -t provider-relay .
+docker run --rm -p 127.0.0.1:11437:11437 \
+  -e PROXY_API_KEY=choose-a-secret \
+  -v "$(pwd)/.provider-relay:/data" \
+  provider-relay
 ```
 
-Tests use temporary fake credentials and loopback mock providers. They never need real provider accounts. See `VERIFICATION.md` for what was tested and `CHANGELOG.md` for changes. Project execution context is in `.agents/skills/project-execution-context/SKILL.md`.
+The container needs `PROXY_API_KEY` because it listens on all interfaces inside the container; your apps then use that secret as their API key. `http://127.0.0.1` gateway URLs from setup point at the container itself, not your computer, so use reachable HTTPS endpoints. Docker runs have not been verified by the project (see `VERIFICATION.md`).
 
-To stop, press Ctrl+C. The clone has no dependency on an existing deployment. Rollback is stopping this process and restoring your own prior private config backup if you changed it. No system services are installed by setup.
+## Development
+
+```sh
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+Tests use fake keys and local mock providers; no real accounts are needed. Code map: `relay.py` (commands and setup), `relay_config.py` (config, permissions, redaction), `router.py` (the HTTP server and routing). See `CHANGELOG.md` for changes and `VERIFICATION.md` for what has been tested.
